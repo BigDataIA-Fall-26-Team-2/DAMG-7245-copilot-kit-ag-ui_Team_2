@@ -1,1 +1,76 @@
 # DAMG-7245-copilot-kit-ag-ui_Team_2
+
+A personal-finance assistant that answers questions in chat and displays interactive charts. This is our starting application; the team's assignment requirements and original contribution still need to be defined.
+
+## What we are building
+
+A user can ask about debt, savings, investments, or a monthly budget. Claude chooses a visual tool and supplies its initial values. React renders the chart in the conversation. Moving a slider recalculates the chart locally; it does not send a new agent message or update the agent's understanding automatically.
+
+Four visuals are included: debt payoff, investment growth, budget breakdown, and scenario comparison. This is an educational planning demo, with no bank connection, transaction database, or trading functionality.
+
+```mermaid
+flowchart LR
+    User[User in browser] --> UI[React + CopilotKit chat]
+    UI --> Server[Express + CopilotKit runtime]
+    Server --> Adapter[AG-UI Managed Agents adapter]
+    Adapter --> Claude[Anthropic hosted agent]
+    Claude --> Events[Streamed text and tool events]
+    Events --> UI
+    UI --> Charts[React charts and local sliders]
+```
+
+- **CopilotKit** provides the chat interface and runtime.
+- **AG-UI** provides the event format connecting the agent and interface.
+- **Claude Managed Agents** hosts the agent execution and tools.
+- **Our application** connects these pieces and defines the finance prompt, visual tools, and chart components.
+
+## Is this starter enough?
+
+Yes, for a small local demonstration of agent chat and interactive UI, provided the team has Managed Agents access. No additional database, vector store, Python backend, or agent framework is required for that scope.
+
+Before calling it the finished course project, agree on the rubric, intended users, and one original feature. A student-budget planner with a savings goal would be a manageable extension. Add a few repeatable evaluation scenarios and tests of the financial calculations.
+
+Before sharing a hosted deployment, add authentication and rate limits. The current API is unauthenticated and messages consume the account's credits. CORS restrictions do not authenticate users or stop direct API callers. Add persistent session mapping if conversations must survive server restarts. A database is useful at that point, rather than a prerequisite for the demo.
+
+## Run locally
+
+1. Install Node 22 or newer and dependencies with `npm ci`.
+2. Install Anthropic's `ant` CLI 2.0 or newer using the [official CLI instructions](https://platform.claude.com/docs/en/cli-sdks-libraries/cli/quickstart).
+3. Authenticate with `ant auth login`, or export `ANTHROPIC_API_KEY` securely in your shell. Do not commit credentials.
+4. Confirm the account has Managed Agents beta access and access to the configured model. The upstream starter specifies `claude-fable-5` and requires an organization with 30-day retention; account availability has not been verified here.
+5. Run `ant apply agents environments` from this directory. This creates cloud resources and writes `claude-lock.json`. The CLI does not load `.env` automatically.
+6. Run `npm run dev` and open http://localhost:5173.
+
+Try: “Show a growth projection for investing $500 per month at an assumed 7% annual return for 20 years.” Then try a debt-payoff prompt and move a chart slider.
+
+Optional server configuration is documented in `.env.example`. `npm run typecheck` checks both workspaces. `npm run build` builds the frontend; `npm start` serves it with the API on port 8787. There is no `npm run setup` command in this imported version.
+
+## Code map
+
+| Path | Purpose |
+| --- | --- |
+| `agents/financial-assistant.md` | Agent model, tools, and instructions |
+| `environments/financial-assistant.yaml` | Hosted execution environment and networking restrictions |
+| `server/src/index.ts` | Express API, runtime, adapter, and in-memory session mapping |
+| `server/src/resources.ts` | Load provisioned resource IDs; lockfile takes precedence over environment variables |
+| `server/src/vizTools.ts` | Four visual tool contracts |
+| `web/src/App.tsx` | Chat page |
+| `web/src/viz/renderers.tsx` | Match agent tool calls to chart components |
+| `web/src/viz/finance.ts` | Debt and growth calculations |
+| `web/src/viz/` | Charts, sliders, and tool activity display |
+
+## Review notes
+
+The starter is deliberately a demo. There is no test suite, CI workflow, authentication, rate limiting, or persistent application database. Session mappings are in memory; restarting the server loses the mapping to earlier hosted sessions.
+
+Input validation could be tightened before extending the visual tools: frontend schemas do not enforce every server-side bound, and budget amounts allow negative numbers although the chart filters them out. Growth calculation caps the horizon at 50 years, while its caption uses the supplied years, so out-of-range inputs could produce a misleading caption. These are follow-up hardening items; imported application code is unchanged.
+
+## Starter provenance
+
+Imported on November 12, 2026 from [anthropics/claude-quickstarts](https://github.com/anthropics/claude-quickstarts/tree/4a4224bdf0e9cfb3332167b69c90457403813625/managed-agents/copilot-kit-ag-ui), commit `4a4224bdf0e9cfb3332167b69c90457403813625`, subdirectory `managed-agents/copilot-kit-ag-ui`.
+
+All starter files were imported. The upstream README is preserved in [STARTER_README.md](STARTER_README.md), the upstream license in [LICENSE](LICENSE), and the existing team `.gitignore` was extended for Node dependencies, builds, local credentials, and resource IDs. The team's existing Git remote and history were preserved. No cloud resources were provisioned and no changes were committed or pushed during import.
+
+## Import validation
+
+On November 12, 2026: `npm ci`, `npm run typecheck`, and `npm run build` passed. A temporary server with dummy resource IDs returned HTTP 200 for the built frontend and `/api/copilotkit/info`, which listed `financial-assistant`. No live agent turn or browser interaction was tested. Vite reported large bundle chunks (the main JavaScript bundle is approximately 2.1 MB before gzip); dependency installation reported upstream deprecations. All imported application files match the recorded upstream commit.
