@@ -1,0 +1,3 @@
+export function scenarioMessage(scenario: object) {
+  return 'Explain my current scenario using the exact chart inputs and calculated results below. These are the values I selected now, replacing the original inputs for this explanation. Honor displayMode: hysa means discuss HYSA only, stocks means discuss stocks only, and both means compare both. Do not introduce hidden scenarios or invent additional calculations, current rates, insurance coverage, or guaranteed returns. Explain the supplied assumptions and trade-offs briefly in text; do not create another chart unless I ask.\n' + JSON.stringify(scenario, null, 2);
+}

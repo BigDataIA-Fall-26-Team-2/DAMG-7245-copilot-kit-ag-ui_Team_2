@@ -15,6 +15,9 @@ import { PayoffTimeline } from './PayoffTimeline';
 import { GrowthProjection } from './GrowthProjection';
 import { BudgetBreakdown } from './BudgetBreakdown';
 import { Comparison } from './Comparison';
+import { SavingsComparison } from './SavingsComparison';
+import { savingsComparisonSchema } from './savingsMath';
+import { SavingsGoal, savingsGoalSchema } from './SavingsGoal';
 import { ToolActivity } from './ToolActivity';
 
 // The tool schemas the agent sees (server/src/vizTools.ts) carry the numeric
@@ -137,6 +140,18 @@ export const VizToolRenderers: React.FC = () => {
     },
     [],
   );
+
+  useRenderTool(
+    {
+      name: 'show_savings_vs_investing',
+      parameters: savingsComparisonSchema,
+      render: vizRender(savingsComparisonSchema, 'Building savings comparison…', SavingsComparison),
+    },
+    [],
+  );
+
+  useRenderTool({ name: 'show_savings_goal', parameters: savingsGoalSchema,
+    render: vizRender(savingsGoalSchema, 'Building savings goal…', SavingsGoal) }, []);
 
   // Wildcard fallback: every other tool call (bash, web_search, file ops)
   // renders as a compact expandable activity row instead of disappearing.

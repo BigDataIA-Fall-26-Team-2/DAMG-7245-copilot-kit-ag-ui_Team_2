@@ -1,5 +1,6 @@
 import React from 'react';
 import { CopilotKitProvider, CopilotChat } from '@copilotkit/react-core/v2';
+import { StarterQuestions } from './StarterQuestions';
 import { VizToolRenderers } from './viz/renderers';
 
 // Same-origin by default (the dev proxy and single-process deploys both serve
@@ -10,6 +11,7 @@ const runtimeUrl = import.meta.env.VITE_COPILOT_RUNTIME_URL || '/api/copilotkit'
 export const App: React.FC = () => (
   <CopilotKitProvider runtimeUrl={runtimeUrl}>
     <VizToolRenderers />
+    <StarterQuestions />
     <div className="app">
       <header>
         <h1>

@@ -4,6 +4,7 @@
  */
 import React, { useMemo, useState } from 'react';
 import { growthSchedule } from './finance';
+import { ExplainScenario } from './ExplainCurrentScenario';
 import { LineChart } from './LineChart';
 import { SERIES, fmtUsd, fmtUsdCompact } from './theme';
 
@@ -35,9 +36,9 @@ export const GrowthProjection: React.FC<GrowthArgs> = ({
 
   return (
     <div className="viz-card">
-      <h4>{title}</h4>
+      <h4>Investment growth · {last.year} years</h4>
       <p className="viz-sub">
-        {fmtUsd(initialAmount)} start, {fmtUsd(monthly)}/mo at {returnPct}% for {Math.round(years)} years
+        {fmtUsd(initialAmount)} start, {fmtUsd(monthly)}/mo at {returnPct}% for {last.year} years
       </p>
       <div className="viz-stats">
         <div>
@@ -90,6 +91,7 @@ export const GrowthProjection: React.FC<GrowthArgs> = ({
           onChange={(e) => setReturnPct(Number(e.target.value))}
         />
       </label>
+      <ExplainScenario scenario={{ type: 'investment_growth', initialAmount, monthlyContribution: monthly, annualReturnPercent: returnPct, years: last.year, projectedValue: last.value, contributed: last.contributed, growth, assumptions: 'Annual nominal rate divided by 12; monthly compounding and month-end deposits; excludes taxes, fees and inflation. Hypothetical, not a forecast.' }} />
     </div>
   );
 };
