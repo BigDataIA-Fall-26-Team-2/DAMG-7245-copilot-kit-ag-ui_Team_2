@@ -10,7 +10,7 @@ Group=finance
 WorkingDirectory=/opt/finance/app/server
 Environment=NODE_ENV=production
 Environment=PORT=8787
-Environment=ALLOWED_ORIGINS=https://54.83.165.208,http://localhost:8788,http://127.0.0.1:8788
+Environment=ALLOWED_ORIGINS=https://107.22.124.221,http://localhost:8788,http://127.0.0.1:8788
 Environment=COPILOTKIT_TELEMETRY_DISABLED=true
 EnvironmentFile=/etc/finance/app.env
 ExecStart=/usr/local/bin/node /opt/finance/app/node_modules/tsx/dist/cli.mjs src/index.ts

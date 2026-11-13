@@ -6,11 +6,11 @@ The deployment starts from main commit `e60cc86`, with deployment scripts and a 
 
 ## How access works
 
-Open **https://54.83.165.208** directly. Browser → Nginx HTTPS on EC2 → Node on port 8787 → Claude Managed Agents. No SSH tunnel is needed for normal use.
+Open **https://107.22.124.221** directly. Browser → Nginx HTTPS on EC2 → Node on port 8787 → Claude Managed Agents. No SSH tunnel is needed for normal use.
 
 The security group restricts SSH (22) and HTTPS (443) to the presentation laptop's current public IPv4 address. Port 80 is reachable for ACME certificate validation and redirects other requests to HTTPS; it does not proxy the application. Port 8787 is not publicly allowed. CORS permits the HTTPS URL and optional tunnel origins, but is not an authentication mechanism.
 
-A trusted Let's Encrypt IP-address certificate expires November 19, 2026. A systemd timer checks renewal twice daily and reloads Nginx after renewal. The service uses an IP-specific short-lived certificate; if the EC2 public IP changes after stopping/starting, the certificate and Nginx configuration must be updated. Leave the instance running through the demo.
+A trusted Let's Encrypt IP-address certificate expires November 20, 2026. A systemd timer checks renewal twice daily and reloads Nginx after renewal. The service uses an IP-specific short-lived certificate; if the EC2 public IP changes after stopping/starting, the certificate and Nginx configuration must be updated. Leave the instance running through the demo.
 
 ## Local setup files
 
@@ -25,7 +25,7 @@ A trusted Let's Encrypt IP-address certificate expires November 19, 2026. A syst
 
 ## Start the demo
 
-Open **https://54.83.165.208**. If changing networks (for example, home to campus), first run this from the project folder on your Mac:
+Open **https://107.22.124.221**. If changing networks (for example, home to campus), first run this from the project folder on your Mac:
 
 ```sh
 python3 deploy/refresh-laptop-access.py
@@ -69,8 +69,14 @@ A stop/start can change the public IPv4 address. Refresh `.deploy/host` from EC2
 
 Instance, production dependencies, root-only API-key file, automatic startup, direct HTTPS, and certificate renewal timer are configured. Direct-HTTPS browser checks passed: initial six-month comparison; twelve-month projection with $325/month; explanation matching $9,170.99 HYSA and $9,575.67 upside balances; and a $3,000 savings goal with $500 saved and $250/month showing ten months. Explain became available after both chat and explanation runs. The SSH tunnel was closed and direct HTTPS still returned HTTP 200.
 
-Certificate renewal dry-run passed; Nginx configuration validation passed. The credential directory/file permissions were verified as root-owned 700/600. The frontend fix, which reconciles run status for cards mounted mid-stream, passed all 18 tests, typechecks and the production build. The network-change helper passed its current-IP check; revoke permission was verified via AWS dry-run. No real network change or full EC2 reboot was performed.
+Certificate renewal dry-run passed; Nginx configuration validation passed. The credential directory/file permissions were verified as root-owned 700/600. The frontend fix, which reconciles run status for cards mounted mid-stream, passed all 18 tests, typechecks and the production build. The network-change helper passed its current-IP check; revoke permission was verified via AWS dry-run. A subsequent EC2 stop/start was verified: both services started automatically, the new public IP was configured, and its certificate renewal dry-run passed. A real network-change test has not been performed.
 
 ## Recreating the HTTPS layer
 
 After bootstrap and application installation, install Nginx and a current Certbot in a Python virtual environment. Serve `/var/www/acme` under `/.well-known/acme-challenge/` on port 80. Obtain an IP-address certificate with Certbot's `--preferred-profile shortlived --webroot --webroot-path /var/www/acme --ip-address <IP>` options. Configure `deploy/nginx-finance.conf` with that IP and certificate paths. Install the two `finance-cert-renew` units, then enable the timer. Validate with `nginx -t` and `certbot renew --dry-run --no-random-sleep-on-renew` before relying on renewal. This follows [Let's Encrypt's IP-certificate instructions](https://letsencrypt.org/2026/03/11/shorter-certs-certbot).
+
+## Restart recovery
+
+The instance was restarted and changed from `54.83.165.208` to `107.22.124.221`. The SSH host key was verified unchanged before updating the ignored local host files. A new trusted IP certificate was issued, Nginx and allowed origins were updated, and the released IP’s renewal configuration was moved out of the active renewal directory. Use the new URL above; the old IP no longer belongs to this instance.
+
+Post-restart browser smoke test passed at the new HTTPS URL: six-month comparison, change to twelve months and $325/month, then Explain returned $9,170.99 HYSA and $9,575.67 stock upside. The button re-enabled when the response completed. HTTP redirects to the new HTTPS URL, and all three systemd units are active and enabled.
