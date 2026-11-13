@@ -291,3 +291,10 @@ header p {
     opacity: 0.4;
   }
 }
+
+.comparison-table-scroll { overflow-x: auto; }
+.comparison-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+.comparison-table caption { text-align: left; color: #6f6a5f; margin-bottom: 6px; }
+.comparison-table th, .comparison-table td { text-align: right; padding: 8px 6px; border-bottom: 1px solid #e4e0d5; }
+.comparison-table th:first-child { text-align: left; }
+.comparison-assumptions { margin-top: 14px; line-height: 1.5; }

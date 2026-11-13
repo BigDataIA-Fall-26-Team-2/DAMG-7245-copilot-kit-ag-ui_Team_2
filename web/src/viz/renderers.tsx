@@ -15,6 +15,8 @@ import { PayoffTimeline } from './PayoffTimeline';
 import { GrowthProjection } from './GrowthProjection';
 import { BudgetBreakdown } from './BudgetBreakdown';
 import { Comparison } from './Comparison';
+import { SavingsComparison } from './SavingsComparison';
+import { savingsComparisonSchema } from './savingsMath';
 import { ToolActivity } from './ToolActivity';
 
 // The tool schemas the agent sees (server/src/vizTools.ts) carry the numeric
@@ -134,6 +136,15 @@ export const VizToolRenderers: React.FC = () => {
       name: 'show_comparison',
       parameters: comparisonSchema,
       render: vizRender(comparisonSchema, 'Building comparison…', Comparison),
+    },
+    [],
+  );
+
+  useRenderTool(
+    {
+      name: 'show_savings_vs_investing',
+      parameters: savingsComparisonSchema,
+      render: vizRender(savingsComparisonSchema, 'Building savings comparison…', SavingsComparison),
     },
     [],
   );

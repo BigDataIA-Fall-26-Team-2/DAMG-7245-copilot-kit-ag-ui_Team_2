@@ -7,12 +7,47 @@
  * turn keeps flowing. The rendering IS the result, so the handlers ignore
  * their input and just confirm.
  */
+import { projectBalance } from '../../shared/savingsProjection.ts';
 import type { BackendCustomTool } from '@ag-ui/claude-managed-agents';
 
 const rendered = (name: string) => () =>
   `Rendered "${name}" to the user as an interactive visual.`;
 
 export const vizTools: BackendCustomTool[] = [
+  {
+    name: 'show_savings_vs_investing',
+    description: 'Render 6/12-month savings/investing projections. Set displayMode="hysa" for "remove stocks" or "HYSA only"; "stocks" for "remove HYSA" or "stocks only"; "both" for "show both". Keep the most recent explicit preference on follow-up questions in this same conversation until the user changes it. Use this tool for all three modes, even stock-only follow-ups. Each call creates a NEW chart; never claim to modify old charts. Retain prior amounts and rate assumptions unless changed; hidden rates are still inputs for later comparison. Rates are effective ANNUAL percentages, not horizon returns. Ask for missing starting amount/contribution. If rates are unspecified, label 4% HYSA APY, -20% stock downside and 10% upside as illustrative assumptions, not current rates or forecasts. Do not recommend stocks or imply guarantees/probabilities. Call directly, not inside repl.',
+
+    parameters: {
+      type: 'object',
+      properties: {
+        displayMode: { type: 'string', enum: ['both', 'hysa', 'stocks'], description: 'Use the latest explicit display preference from this conversation; default both when none.' },
+        includeStocks: { type: 'boolean', description: 'False hides all stock scenarios; honor the user preference from earlier turns. Defaults to true.' },
+        initialAmount: { type: 'number', minimum: 0, maximum: 10000000 },
+        monthlyContribution: { type: 'number', minimum: 0, maximum: 100000 },
+        months: { type: 'integer', enum: [6, 12] },
+        hysaApyPercent: { type: 'number', minimum: 0, maximum: 20 },
+        stockDownsidePercent: { type: 'number', minimum: -99, maximum: 0 },
+        stockUpsidePercent: { type: 'number', minimum: 0, maximum: 100 },
+      },
+      required: ['initialAmount', 'monthlyContribution', 'months', 'hysaApyPercent', 'stockDownsidePercent', 'stockUpsidePercent'],
+    },
+    handler: (input) => {
+      const args = input as Record<string, unknown>;
+      const names = ['initialAmount', 'monthlyContribution', 'months', 'hysaApyPercent', 'stockDownsidePercent', 'stockUpsidePercent'];
+      if (!args || names.some((key) => typeof args[key] !== 'number' || !Number.isFinite(args[key]))) return 'Invalid comparison inputs: provide finite numbers for all six parameters.';
+      const { initialAmount: initial, monthlyContribution: monthly, months, hysaApyPercent: apy, stockDownsidePercent: downside, stockUpsidePercent: upside } = args as Record<string, number>;
+      if (initial! < 0 || initial! > 10000000 || monthly! < 0 || monthly! > 100000 || ![6, 12].includes(months!) || apy! < 0 || apy! > 20 || downside! < -99 || downside! > 0 || upside! < 0 || upside! > 100) return 'Invalid comparison inputs: use the tool schema bounds.';
+      if (args.includeStocks !== undefined && typeof args.includeStocks !== 'boolean') return 'Invalid includeStocks: use a boolean.';
+      const mode = args.displayMode ?? (args.includeStocks === false ? 'hysa' : 'both');
+      if (!['both', 'hysa', 'stocks'].includes(String(mode))) return 'Invalid displayMode: choose both, hysa or stocks.';
+      const results = [['HYSA', apy!], ['Stocks downside', downside!], ['Stocks flat', 0], ['Stocks upside', upside!]].filter(([label]) => label === 'HYSA' ? mode !== 'stocks' : mode !== 'hysa').map(([label, rate]) => {
+        const result = projectBalance(initial!, monthly!, Number(rate), months!);
+        return { label, annualPercent: rate, balance: Number(result.balance.toFixed(2)), contributed: result.contributed, gain: Number(result.gain.toFixed(2)) };
+      });
+      return JSON.stringify({ months, displayMode: mode, results, preference: `Current preference: ${mode}. Keep this mode for follow-up questions in this chat until explicitly changed. Explain only the displayed scenarios. Older charts are unchanged.`, instructions: 'Use these exact calculated results for the original inputs, not mental estimates. HYSA assumes unchanged APY, not guaranteed interest; no bank or insurance eligibility has been verified. Stock paths are hypothetical, not forecasts, probability bounds or recommendations. Deposits occur at month-end; taxes, fees and inflation excluded. User slider changes remain local and do not update these original results.' });
+    },
+  },
   {
     name: 'show_payoff_timeline',
     description:
