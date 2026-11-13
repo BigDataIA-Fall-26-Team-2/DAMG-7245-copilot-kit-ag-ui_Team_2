@@ -3,10 +3,10 @@
  * to show. Registered on each session by @ag-ui/claude-managed-agents as
  * backend tools: the adapter streams each call to the browser as AG-UI
  * TOOL_CALL events, CopilotKit renders it as an interactive React component
- * (see web/src/viz), and the handler's ack goes back to the session so the
- * turn keeps flowing. The rendering IS the result, so the handlers ignore
- * their input and just confirm.
+ * (see web/src/viz). Debt, savings comparison, and savings goal handlers
+ * return shared calculated results; other handlers acknowledge rendering.
  */
+import { payoffSchedule } from '../../shared/finance.ts';
 import { savingsGoal } from '../../shared/savingsGoal.ts';
 import { projectBalance } from '../../shared/savingsProjection.ts';
 import type { BackendCustomTool } from '@ag-ui/claude-managed-agents';
@@ -91,7 +91,15 @@ export const vizTools: BackendCustomTool[] = [
       },
       required: ['title', 'principal', 'aprPercent', 'monthlyPayment'],
     },
-    handler: rendered('show_payoff_timeline'),
+    handler: (input) => {
+      const a = input as Record<string, unknown>;
+      if (!a || !['principal', 'aprPercent', 'monthlyPayment'].every(k => typeof a[k] === 'number' && Number.isFinite(a[k])) || Number(a.principal) <= 0 || Number(a.monthlyPayment) <= 0 || Number(a.aprPercent) < 0 || Number(a.aprPercent) > 100 || (a.comparisonPayment !== undefined && (typeof a.comparisonPayment !== 'number' || !Number.isFinite(a.comparisonPayment) || a.comparisonPayment <= 0))) return 'Invalid debt inputs.';
+      const summarize = (payment: number) => {
+        const r = payoffSchedule(Number(a.principal), Number(a.aprPercent), payment);
+        return { monthlyPayment: payment, months: r.paysOff ? r.months : null, paysOff: r.paysOff, coversInterest: r.coversInterest, projectionMonths: r.months, totalInterestInProjection: Math.round(r.totalInterest * 100) / 100 };
+      };
+      return JSON.stringify({ principal: a.principal, aprPercent: a.aprPercent, plan: summarize(Number(a.monthlyPayment)), ...(a.comparisonPayment !== undefined ? { comparison: summarize(Number(a.comparisonPayment)) } : {}), instructions: 'Use these exact calculated results, not estimates. Constant APR/12 and monthly payments, no new charges or fees. Null months means not paid off within projection. Interest totals cover only the projection if no payoff. Slider edits remain local until sent via Explain.' });
+    },
   },
   {
     name: 'show_growth_projection',

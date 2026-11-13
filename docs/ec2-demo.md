@@ -37,7 +37,7 @@ The EC2 service retains the API key and starts on reboot; you do not need to ent
 
 ## Demo checks
 
-1. Click Compare stocks and savings; verify a six-month chart appears.
+1. Click Compare stocks and savings, edit the populated draft if desired, then press Send; verify a six-month chart appears.
 2. Change the horizon to twelve months and adjust a contribution.
 3. Click Explain my current scenario; verify the response uses the changed values.
 4. Ask for a savings goal: $3,000 target, $500 saved, $250/month. Expect ten months.
@@ -80,3 +80,7 @@ After bootstrap and application installation, install Nginx and a current Certbo
 The instance was restarted and changed from `54.83.165.208` to `107.22.124.221`. The SSH host key was verified unchanged before updating the ignored local host files. A new trusted IP certificate was issued, Nginx and allowed origins were updated, and the released IP’s renewal configuration was moved out of the active renewal directory. Use the new URL above; the old IP no longer belongs to this instance.
 
 Post-restart browser smoke test passed at the new HTTPS URL: six-month comparison, change to twelve months and $325/month, then Explain returned $9,170.99 HYSA and $9,575.67 stock upside. The button re-enabled when the response completed. HTTP redirects to the new HTTPS URL, and all three systemd units are active and enabled.
+
+## November 13 release
+
+The `feature/demo-guide` release adds presentation guides, six editable starter prompts, debt APR/payment controls, debt explanations, and shared debt calculations returned to the agent. Local regression: 22 tests, type checks, build, all six visuals, conversation display preferences, and explanation outage/retry checks passed. The deployed commit is recorded in `/opt/finance/release`; deployment from a PR branch does not merge that branch into main. Start a fresh chat after deployment because session mappings are in memory.

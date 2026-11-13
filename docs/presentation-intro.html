@@ -15,7 +15,7 @@
 <div class="prompt-options" aria-label="Example questions"><button data-example="explain" aria-pressed="true">“What does APY mean?”</button><button data-example="clarify" aria-pressed="false">“Help me save money.”</button><button data-example="tool" aria-pressed="false">“Plan my $3,000 goal.”</button></div>
 <div class="diagram" aria-label="Message to LLM decision to possible response">
 <div class="box input-box"><div class="label">User message</div><p id="question"></p></div><div class="arrow" aria-hidden="true">→</div>
-<div class="box llm"><div class="label">Claude · LLM</div><h2>Choose the next action</h2><p>Context + instructions<br>Tool names + descriptions<br>Required input schemas</p></div><div class="arrow" aria-hidden="true">→</div>
+<div class="box llm"><div class="label">Claude · LLM</div><p class="small">Configured model: <code>claude-fable-5</code><br>Anthropic Managed Agents</p><h2>Choose the next action</h2><p>Context + instructions<br>Tool names + descriptions<br>Required input schemas</p></div><div class="arrow" aria-hidden="true">→</div>
 <div class="choices"><div class="choice" id="route-explain"><strong>Answer directly</strong><span>No tool call needed</span></div><div class="choice" id="route-clarify"><strong>Ask for clarification</strong><span>Get the missing inputs first</span></div><div class="choice" id="route-tool"><strong>Call a tool</strong><span>Choose a name + structured arguments</span></div></div>
 </div>
 <div class="response" aria-live="polite"><div class="label">Example response</div><p id="response"></p></div>

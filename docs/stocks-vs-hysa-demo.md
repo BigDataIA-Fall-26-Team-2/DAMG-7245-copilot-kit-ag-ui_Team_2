@@ -133,11 +133,11 @@ Live extension checks: the savings goal changed from 10 to 5 months when its con
 
 ## Suggested questions before the first message
 
-`web/src/StarterQuestions.tsx` registers four static CopilotKit suggestions, scoped to `financial-assistant` and available only `before-first-message`. `App.tsx` mounts this component inside the provider. The buttons are Compare stocks and savings, Plan a savings goal, Explore debt payoff, and Project investment growth. Clicking one sends the full example question through the normal chat flow; buttons disappear once the conversation starts. These are predefined prompts, so generating them does not consume model calls. Sending one still starts a normal paid agent turn.
+`web/src/StarterQuestions.tsx` registers six static CopilotKit suggestions, scoped to `financial-assistant` and available only `before-first-message`. `App.tsx` mounts this component inside the provider. The buttons are Compare stocks and savings, Plan a savings goal, Explore debt payoff, Project investment growth, Break down my budget, and Compare savings scenarios. Clicking one fills and focuses the editable message box. Only Send or Enter submits the draft; buttons disappear once the conversation starts. These are predefined prompts, so generating them does not consume model calls. Submitting the draft still starts a normal paid agent turn.
 
 For the demo, click Compare stocks and savings instead of pasting the first prompt. Start a fresh chat to show the other starter buttons.
 
-Verified all four buttons in fresh browser chats: debt payoff rendered a 20-month plan; the savings goal rendered 10 months; investment growth rendered $260,463; Stocks vs. HYSA rendered all four six-month scenarios. Each click sent its configured message and hid the starter buttons. Typechecking and production build passed.
+Earlier immediate-send version: verified four buttons in fresh browser chats: debt payoff rendered a 20-month plan; the savings goal rendered 10 months; investment growth rendered $260,463; Stocks vs. HYSA rendered all four six-month scenarios. Each click sent its configured message and hid the starter buttons. Typechecking and production build passed.
 
 ## Final browser verification — November 13, 2026
 
@@ -152,3 +152,5 @@ Verified all four buttons in fresh browser chats: debt payoff rendered a 20-mont
 Reproduce the failure test only against your local dev server: generate a goal card, stop the backend while keeping the frontend open, click Explain, change a slider, restart the backend, then click Explain again. Failed attempts remain visible as user messages; retry sends the current card state as a new message.
 
 Validation: all 18 automated tests, both workspace typechecks, and the production build passed. Vite still reports its existing large-chunk warning. These are manual browser checks, not automated end-to-end tests. Model prose can include additional illustrative assumptions despite the prompt, so use the card's calculated figures as the demo's numerical source of truth.
+
+Current editable-suggestion verification: all six buttons populated the draft without sending. Edited the budget prompt to $500 groceries, pressed Send, and verified the rendered chart used $500 groceries and showed $500 unallocated.

@@ -4,7 +4,7 @@ A personal-finance assistant that answers questions in chat and displays interac
 
 ## What we are building
 
-A user can ask about debt, savings, investments, or a monthly budget. Claude chooses a visual tool and supplies its initial values. React renders the chart in the conversation. Moving a slider recalculates locally. On growth, Stocks vs. HYSA, and savings-goal cards, clicking “Explain my current scenario” explicitly sends the current state as a new agent message.
+A user can ask about debt, savings, investments, or a monthly budget. Claude chooses a visual tool and supplies its initial values. React renders the chart in the conversation. Moving a slider recalculates locally. On debt payoff, growth, Stocks vs. HYSA, and savings-goal cards, clicking “Explain my current scenario” explicitly sends the current state as a new agent message.
 
 The four original visuals are included: debt payoff, investment growth, budget breakdown, and scenario comparison. This is an educational planning demo, with no bank connection, transaction database, or trading functionality.
 
@@ -23,6 +23,14 @@ flowchart LR
 - **AG-UI** provides the event format connecting the agent and interface.
 - **Claude Managed Agents** hosts the agent execution and tools.
 - **Our application** connects these pieces and defines the finance prompt, visual tools, and chart components.
+
+## Agent model and conversation history
+
+The repository configures **`claude-fable-5`** in [agents/financial-assistant.md](agents/financial-assistant.md). Claude runs in Anthropic Managed Agents; EC2 hosts the application runtime and backend finance tools. The runtime selects a published agent ID and version from `claude-lock.json` or deployment environment variables, rather than sending a model name per message. A model change requires publishing the agent configuration and updating/restarting the runtime to use that version; the repository setting alone does not verify a deployed version's model.
+
+The current conversation appears in the chat and supplies follow-up context. Anthropic maintains hosted session history, while `server/src/index.ts` keeps the thread-to-session mapping in `InMemorySessionStore`. We have not implemented a saved-conversation sidebar, persistent thread catalog, or UI for reopening earlier chats. A server restart loses the mapping, and the app does not provide reliable history restoration after a page reload. Hosted session history is not the same as a user-facing chat-history feature.
+
+The welcome screen has six editable example questions, one for each finance tool. Clicking a suggestion fills and focuses the message box; the user can edit it and must press Send (or Enter) to start a request. Suggestions disappear after the first sent message. The agent still decides which tool fits the final message.
 
 ## Is this starter enough?
 
@@ -90,3 +98,5 @@ See [the EC2 deployment walkthrough](docs/ec2-demo.md) for the private presentat
 Open [docs/demo-guide.html](docs/demo-guide.html) in a browser for a self-contained walkthrough: clickable architecture, three request traces, an offline chart-versus-agent-state simulator, all six tools and their source files, and a seven-step presentation script. It does not call Claude or spend API credits.
 
 For a short presentation opening, use [docs/presentation-intro.html](docs/presentation-intro.html): three interactive screens explaining optional tool selection, tool execution, and chat versus slider versus Explain behavior.
+
+For the audience-facing presentation, open [docs/presentation.html](docs/presentation.html). It keeps the interactive architecture, tool-selection examples, request traces, and scenario simulator without presenter notes or a timed demo script.
