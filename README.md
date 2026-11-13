@@ -61,9 +61,9 @@ Optional server configuration is documented in `.env.example`. `npm run typechec
 
 ## Review notes
 
-The starter is deliberately a demo. The starter has no CI workflow, authentication, rate limiting, or persistent application database. This extension adds a focused automated test suite for the new tool. Session mappings are in memory; restarting the server loses the mapping to earlier hosted sessions.
+The starter is deliberately a demo. The starter has no CI workflow, authentication, rate limiting, or persistent application database. This extension adds focused automated tests for both new tools and their calculations. Session mappings are in memory; restarting the server loses the mapping to earlier hosted sessions.
 
-Input validation could be tightened before extending the visual tools: frontend schemas do not enforce every server-side bound, and budget amounts allow negative numbers although the chart filters them out. Growth calculation caps the horizon at 50 years, while its caption uses the supplied years, so out-of-range inputs could produce a misleading caption. These are follow-up hardening items in the original tools; the new comparison uses bounded inputs.
+Input validation could be tightened before extending the visual tools: frontend schemas do not enforce every server-side bound, and budget amounts allow negative numbers although the chart filters them out. These are follow-up hardening items in the original tools; the new tools use bounded inputs. The growth chart now labels its actual calculation horizon, including the original 50-year cap.
 
 ## Starter provenance
 
@@ -77,6 +77,6 @@ On November 12, 2026: `npm ci`, `npm run typecheck`, and `npm run build` passed.
 
 ## Team feature validation
 
-The Stocks vs. HYSA extension passes eighteen automated tests, both workspace typechecks, and the production build. A live Claude call rendered the comparison. Browser checks verified six- and twelve-month results and zero-contribution/zero-APY behavior. See [the reproducible demo](docs/stocks-vs-hysa-demo.md).
+The team extensions pass eighteen automated tests, both workspace typechecks, and the production build. A live Claude call rendered the comparison. Browser checks verified six- and twelve-month results and zero-contribution/zero-APY behavior. See [the reproducible demo](docs/stocks-vs-hysa-demo.md).
 
 The empty chat also offers four clickable starter questions, configured in `web/src/StarterQuestions.tsx`. They disappear after the first message.
