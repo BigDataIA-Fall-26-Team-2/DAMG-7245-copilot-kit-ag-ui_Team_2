@@ -123,7 +123,7 @@ Files: `shared/savingsGoal.ts` (math), `server/src/vizTools.ts` (agent contract 
 
 ### Explain my current scenario
 
-The button on growth, Stocks vs. HYSA, and savings-goal cards sends a NEW user message through the existing CopilotKit agent, containing current inputs, computed outputs and assumptions. It is a UI action, not a seventh backend tool. It requests a short text explanation rather than another chart. The source card is preserved. It is disabled while the agent is busy, guards rapid repeat clicks, and shows an error on a rejected request while leaving calculations usable. Network failures are handled in code; a forced network-failure browser test has not been performed.
+The button on growth, Stocks vs. HYSA, and savings-goal cards sends a NEW user message through the existing CopilotKit agent, containing current inputs, computed outputs and assumptions. It is a UI action, not a seventh backend tool. It requests a short text explanation rather than another chart. The source card is preserved. It is disabled while the agent is busy, guards rapid repeat clicks, and shows an error on a rejected request while leaving calculations usable. Forced connection-failure and recovery checks passed on November 13, 2026; see the verification section below.
 
 Files: `web/src/viz/ExplainCurrentScenario.tsx` (message submission), `web/src/viz/scenarioMessage.ts` (payload), plus the three card components. The growth title now uses a stable label and the actual calculation horizon rather than an agent-generated title that could retain stale amounts.
 
@@ -138,3 +138,17 @@ Live extension checks: the savings goal changed from 10 to 5 months when its con
 For the demo, click Compare stocks and savings instead of pasting the first prompt. Start a fresh chat to show the other starter buttons.
 
 Verified all four buttons in fresh browser chats: debt payoff rendered a 20-month plan; the savings goal rendered 10 months; investment growth rendered $260,463; Stocks vs. HYSA rendered all four six-month scenarios. Each click sent its configured message and hid the starter buttons. Typechecking and production build passed.
+
+## Final browser verification — November 13, 2026
+
+- Budget breakdown: income $3,000, rent $1,200, groceries $400, transport $200, utilities $150, savings $500. The card showed $550 unallocated (18% rounded).
+- Over-budget case: income $1,000, rent $900, food $300. The card showed $200 over budget (20%).
+- Generic scenario comparison: supplied Option A $1,000 and Option B $1,500 with dollar units. Both labels, values, and bars rendered. This tool displays supplied values rather than computing projections.
+- Explanation failure: stopped the local backend after rendering a savings-goal card, then clicked Explain. The original implementation silently swallowed the failed request because CopilotKit reports failures through events as well as promise rejection. Added scoped failure-event subscriptions.
+- Button recovery: fixed stale disabled state by tracking agent lifecycle events directly. Previously, the button could remain disabled until a slider caused another render.
+- Retest with backend stopped: a visible error appeared and the button became available again. Moving monthly savings to $0 still recalculated the card to “No completion date.”
+- Recovery: restarted the backend and clicked Explain again. The error cleared, the current $0/month values were sent, and the assistant explained the unreachable goal. The chart retained its state and the button became available after completion.
+
+Reproduce the failure test only against your local dev server: generate a goal card, stop the backend while keeping the frontend open, click Explain, change a slider, restart the backend, then click Explain again. Failed attempts remain visible as user messages; retry sends the current card state as a new message.
+
+Validation: all 18 automated tests, both workspace typechecks, and the production build passed. Vite still reports its existing large-chunk warning. These are manual browser checks, not automated end-to-end tests. Model prose can include additional illustrative assumptions despite the prompt, so use the card's calculated figures as the demo's numerical source of truth.
