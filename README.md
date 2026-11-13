@@ -88,3 +88,5 @@ See [the EC2 deployment walkthrough](docs/ec2-demo.md) for the private presentat
 ## Interactive demo guide
 
 Open [docs/demo-guide.html](docs/demo-guide.html) in a browser for a self-contained walkthrough: clickable architecture, three request traces, an offline chart-versus-agent-state simulator, all six tools and their source files, and a seven-step presentation script. It does not call Claude or spend API credits.
+
+For a short presentation opening, use [docs/presentation-intro.html](docs/presentation-intro.html): three interactive screens explaining optional tool selection, tool execution, and chat versus slider versus Explain behavior.
