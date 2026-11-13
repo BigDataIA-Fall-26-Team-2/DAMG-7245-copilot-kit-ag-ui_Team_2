@@ -1,6 +1,6 @@
 import React from 'react';
 import { CopilotKitProvider, CopilotChat } from '@copilotkit/react-core/v2';
-import { StarterQuestions } from './StarterQuestions';
+import { StarterQuestions, EditableSuggestionChat } from './StarterQuestions';
 import { VizToolRenderers } from './viz/renderers';
 
 // Same-origin by default (the dev proxy and single-process deploys both serve
@@ -23,6 +23,7 @@ export const App: React.FC = () => (
       <div className="chat-shell">
         <CopilotChat
           agentId="financial-assistant"
+          chatView={EditableSuggestionChat}
           labels={{
             chatInputPlaceholder:
               'Share your financial picture or ask about planning for the future…',
