@@ -1,0 +1,7 @@
+[Unit]
+Description=Renew Finance demo IPv4 TLS certificate
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/opt/certbot/bin/certbot renew --quiet --deploy-hook "/usr/bin/systemctl reload nginx"

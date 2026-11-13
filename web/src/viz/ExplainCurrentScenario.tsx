@@ -21,6 +21,15 @@ export const ExplainScenario: React.FC<{ scenario: object }> = ({ scenario }) =>
     });
     return () => subscription.unsubscribe();
   }, [agent]);
+  useEffect(() => {
+    if (!agentBusy) return;
+    // A chart may mount midway through a run whose subscriber list was already
+    // captured. Reconcile that run's mutable status until it becomes idle.
+    const timer = setInterval(() => {
+      if (!agent.isRunning) setAgentBusy(false);
+    }, 250);
+    return () => clearInterval(timer);
+  }, [agent, agentBusy]);
   const explain = async () => {
     if (inFlight.current || agent.isRunning) return;
     inFlight.current = true;

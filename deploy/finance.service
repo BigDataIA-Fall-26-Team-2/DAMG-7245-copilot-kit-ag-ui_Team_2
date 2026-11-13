@@ -1,0 +1,27 @@
+[Unit]
+Description=Team 2 Finance Assistant
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=finance
+Group=finance
+WorkingDirectory=/opt/finance/app/server
+Environment=NODE_ENV=production
+Environment=PORT=8787
+Environment=ALLOWED_ORIGINS=https://54.83.165.208,http://localhost:8788,http://127.0.0.1:8788
+Environment=COPILOTKIT_TELEMETRY_DISABLED=true
+EnvironmentFile=/etc/finance/app.env
+ExecStart=/usr/local/bin/node /opt/finance/app/node_modules/tsx/dist/cli.mjs src/index.ts
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/finance
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

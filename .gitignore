@@ -233,3 +233,6 @@ agent-ids.json
 
 .env.*
 !.env.example
+
+# Local EC2 deployment state and SSH material
+.deploy/
