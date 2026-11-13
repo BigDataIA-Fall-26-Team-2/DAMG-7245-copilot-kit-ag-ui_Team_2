@@ -1,10 +1,37 @@
-# Stocks vs. HYSA: team feature and demo
+# Finance Assistant: team additions and demo walkthrough
 
 ## What we added
 
-One tool, `show_savings_vs_investing`, compares a HYSA with three hypothetical stock paths over 6 or 12 months. The existing four finance tools remain. No live market data, ticker predictions, or bank-rate lookup is needed.
+The comparison tool, `show_savings_vs_investing`, compares a HYSA with three hypothetical stock paths over 6 or 12 months. The existing four finance tools remain. No live market data, ticker predictions, or bank-rate lookup is needed.
 
-The starter supplied chat, the Express/CopilotKit runtime, the AG-UI adapter, existing charts, and the tool-rendering pattern. Our contribution is the comparison tool, editable comparison component, shared deterministic calculation, input validation, and tests.
+The starter supplied chat, the Express/CopilotKit runtime, the AG-UI adapter, existing charts, and the tool-rendering pattern. Our contributions are the Stocks vs. HYSA tool with conversation display modes, the Savings Goal Planner, and the Explain my current scenario action. There are six backend finance tools total: four original tools and two new tools. Explain is a UI action, not another backend tool. We also added shared deterministic calculations, validation, tests, and a stable growth-chart title.
+
+## Full presentation walkthrough (about five minutes, plus model response time)
+
+Before recording, open http://localhost:5173 with both development servers running. Use a fresh chat so old preferences do not affect the demonstration. If servers are stopped, run `npm run dev` from the root; do not launch duplicate servers on the same ports. Authenticate with `ant auth login` if your credentials expired.
+
+| Step | What to do | What to explain |
+| --- | --- | --- |
+| 1. Introduce | Show the chat page | “The starter supplied chat, streaming, an agent connection, and four visual tools. We added two tools and an explicit chart-to-chat action.” |
+| 2. Compare | Paste the Stocks vs. HYSA prompt below | “Claude chooses the tool and inputs; our code calculates the results. These are scenarios, not predictions.” |
+| 3. Interact | Switch the chart horizon from 6 to 12 months | “This recalculates locally without a model request; the original assistant text does not change.” |
+| 4. Set preference | Say “Remove stocks; show HYSA only.” Then “What about six months?” | “The preference carries into the next turn of this chat. Older charts remain unchanged. It is not a permanent user profile.” |
+| 5. Plan a goal | Say “I have $500 saved toward $3,000 and can save $250/month. Show the savings goal planner without interest.” | “Our second tool calculates $2,500 remaining and 10 months, using a simple no-interest model.” |
+| 6. Send current state | Move the goal slider to $500/month, then click Explain my current scenario | “The card now says five months. This button explicitly sends the current inputs and results as a new user message. The assistant explains the updated scenario without resetting the card.” |
+| 7. Show verification | Run `npm test`, show the test summary, and point to the shared math files | “Eighteen automated tests cover our calculations and contracts. We also verified tool rendering and preference changes in the browser.” |
+
+Optional, if time allows: show the original growth chart, change $500/month to $750/month and use Explain. The updated projection is about $390,695 over 20 years at the starter's assumed 7% nominal annual rate.
+
+Close with: “We are demonstrating tested interactive agent integration, not a financial prediction service. Live rates, permanent profiles, authentication, and public deployment are outside this submission.”
+
+## Before submitting
+
+- Rehearse the sequence yourself and record the demo.
+- Add the recording link and any required submission artifacts.
+- Finish documented live regression checks for the original debt-payoff, budget, and generic comparison tools.
+- If cost/latency evidence is required, measure it; do not present estimates as recorded usage.
+- A forced network-failure UI test remains outstanding.
+- Review and merge the feature branch if main is the submission branch. Do not assume pushing a feature branch merges it.
 
 ## Follow one request through the code
 
@@ -62,7 +89,7 @@ npm run typecheck
 npm run build
 ```
 
-Twelve automated tests cover APY conversion at both horizons, zero returns, month-end deposit timing, an independent annuity formula, negative returns, empty balances, invalid inputs, schema coercion/bounds, and equality between the server result and browser calculation.
+Eighteen automated tests cover APY conversion at both horizons, zero returns, month-end deposit timing, an independent annuity formula, negative returns, empty balances, invalid inputs, schema coercion/bounds, and equality between the server result and browser calculation.
 
 Browser checks cover live agent tool selection/rendering, 6/12-month switching, monthly-contribution and APY controls, and the zero-input scenario above. The existing large-bundle Vite warning is non-blocking.
 
@@ -72,7 +99,7 @@ Browser checks cover live agent tool selection/rendering, 6/12-month switching, 
 
 **Are these forecasts?** No. They are user-editable scenarios with no assigned probabilities. Real losses or gains can exceed the chosen scenarios.
 
-**Does Claude know when I move a slider?** No. Its reply describes the original tool inputs. Local changes are explicitly labelled as local; sending them back is outside this feature's scope.
+**Does Claude know when I move a slider?** Not automatically. Click “Explain my current scenario” to send the current inputs and calculated results as a new user message. This is available on growth, Stocks vs. HYSA, and savings-goal cards.
 
 **Is every starter tool independently calculated?** No. The existing generic comparison tool displays agent-provided values. Our new comparison tool computes balances in shared application code and supplies those results to the agent.
 
@@ -85,3 +112,21 @@ The local Display selector changes only that card. It does not send a preference
 Preference demo: request stocks only for six months → “What about twelve months?” → “Remove stocks; show HYSA only” → “What about six months?” → “Show both again” → “What about twelve months?” Check the latest chart and verify the previous cards do not change.
 
 Live browser verification on November 12, 2026: the six-turn sequence above produced modes `stocks, stocks, hysa, hysa, both, both`. Earlier chart selectors retained their original modes, confirming that new chat requests did not mutate old cards. All twelve automated tests, workspace typechecks, and the production build passed.
+
+## Additional extensions
+
+### Savings Goal Planner
+
+New tool: `show_savings_goal`. Prompt: “I have $500 saved toward $3,000 and can save $250/month. Show the savings goal planner without interest.” Expected: $2,500 remaining, 10 months. Move monthly savings to $500: 5 months. Set it to zero: no completion date. Already-reached goals report 0 months. No interest, fees or withdrawals; money is rounded to cents before arithmetic.
+
+Files: `shared/savingsGoal.ts` (math), `server/src/vizTools.ts` (agent contract and result), `web/src/viz/SavingsGoal.tsx` (UI), `web/src/viz/renderers.tsx` (registration).
+
+### Explain my current scenario
+
+The button on growth, Stocks vs. HYSA, and savings-goal cards sends a NEW user message through the existing CopilotKit agent, containing current inputs, computed outputs and assumptions. It is a UI action, not a seventh backend tool. It requests a short text explanation rather than another chart. The source card is preserved. It is disabled while the agent is busy, guards rapid repeat clicks, and shows an error on a rejected request while leaving calculations usable. Network failures are handled in code; a forced network-failure browser test has not been performed.
+
+Files: `web/src/viz/ExplainCurrentScenario.tsx` (message submission), `web/src/viz/scenarioMessage.ts` (payload), plus the three card components. The growth title now uses a stable label and the actual calculation horizon rather than an agent-generated title that could retain stale amounts.
+
+Automated coverage adds goal rounding, reached/zero-contribution cases, cent precision, invalid values, backend results, and serialization of current rather than initial inputs.
+
+Live extension checks: the savings goal changed from 10 to 5 months when its contribution changed from $250 to $500; Explain sent and explained the updated five-month result without resetting the card. Growth Explain sent $750/month and $390,694.99 after the slider change. HYSA Explain sent only the visible HYSA result with $500/month and $8,123.68.

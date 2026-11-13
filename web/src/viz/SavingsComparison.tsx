@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { projectBalance, type SavingsComparisonArgs } from './savingsMath';
+import { ExplainScenario } from './ExplainCurrentScenario';
 import { LineChart } from './LineChart';
 import { fmtUsd, fmtUsdCompact, SERIES } from './theme';
 
@@ -49,7 +50,8 @@ export const SavingsComparison: React.FC<SavingsComparisonArgs> = (props) => {
       {showHysa && slider('hysaApyPercent', 'HYSA APY', 0, 20, 0.1)}
       {showStocks && slider('stockDownsidePercent', 'Stock downside annual return', -99, 0, 1)}
       {showStocks && slider('stockUpsidePercent', 'Stock upside annual return', 0, 100, 1)}
-      <p className="viz-sub comparison-assumptions">Assumes month-end deposits. {showHysa && 'HYSA APY is assumed unchanged; actual rates can change. '} {showStocks && 'Stock paths assume smooth monthly growth/loss and are hypothetical, not likely outcomes or limits; actual losses may be larger. '} Excludes taxes, fees, inflation, and withdrawals. Slider changes stay in this chart and are not sent to the assistant.</p>
+      <p className="viz-sub comparison-assumptions">Assumes month-end deposits. {showHysa && 'HYSA APY is assumed unchanged; actual rates can change. '} {showStocks && 'Stock paths assume smooth monthly growth/loss and are hypothetical, not likely outcomes or limits; actual losses may be larger. '} Excludes taxes, fees, inflation, and withdrawals. Slider changes stay local until you click Explain my current scenario.</p>
+      <ExplainScenario scenario={{ type: 'savings_vs_investing', displayMode: mode, initialAmount: values.initialAmount, monthlyContribution: values.monthlyContribution, months: values.months, results: scenarios.map(({ label, rate, balance, contributed, gain }) => ({label, annualPercent:rate, balance, contributed, gain})), assumptions: 'Effective annual rates, unchanged HYSA APY where displayed, smooth hypothetical stock paths where displayed, month-end deposits; no taxes, fees, inflation or withdrawals.' }} />
     </section>
   );
 };

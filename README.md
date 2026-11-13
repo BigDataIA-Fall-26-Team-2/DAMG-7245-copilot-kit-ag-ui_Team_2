@@ -1,10 +1,10 @@
 # DAMG-7245-copilot-kit-ag-ui_Team_2
 
-A personal-finance assistant that answers questions in chat and displays interactive charts. Our team extends the starter with a Stocks vs. HYSA Scenario Explorer. See [the demo walkthrough](docs/stocks-vs-hysa-demo.md) for the changes, assumptions, tests, and presentation script.
+A personal-finance assistant that answers questions in chat and displays interactive charts. Our team extends the starter with a Stocks vs. HYSA Scenario Explorer, a Savings Goal Planner, and explicit current-scenario explanations. See [the demo walkthrough](docs/stocks-vs-hysa-demo.md) for the changes, assumptions, tests, and presentation script.
 
 ## What we are building
 
-A user can ask about debt, savings, investments, or a monthly budget. Claude chooses a visual tool and supplies its initial values. React renders the chart in the conversation. Moving a slider recalculates the chart locally; it does not send a new agent message or update the agent's understanding automatically.
+A user can ask about debt, savings, investments, or a monthly budget. Claude chooses a visual tool and supplies its initial values. React renders the chart in the conversation. Moving a slider recalculates locally. On growth, Stocks vs. HYSA, and savings-goal cards, clicking “Explain my current scenario” explicitly sends the current state as a new agent message.
 
 The four original visuals are included: debt payoff, investment growth, budget breakdown, and scenario comparison. This is an educational planning demo, with no bank connection, transaction database, or trading functionality.
 
@@ -28,7 +28,7 @@ flowchart LR
 
 Yes, for a small local demonstration of agent chat and interactive UI, provided the team has Managed Agents access. No additional database, vector store, Python backend, or agent framework is required for that scope.
 
-Submission scope: the working finance starter plus one new tool, `show_savings_vs_investing`, with deterministic calculations, 6/12-month controls, hypothetical downside/flat/upside stock scenarios, and a HYSA projection. Run `npm test` for the new calculation and tool-contract tests. See [demo and expected results](docs/stocks-vs-hysa-demo.md).
+Submission scope: the working finance starter plus two new tools, `show_savings_vs_investing` and `show_savings_goal`, with deterministic calculations, 6/12-month controls, hypothetical downside/flat/upside stock scenarios, and a HYSA projection. Run `npm test` for the new calculation and tool-contract tests. See [demo and expected results](docs/stocks-vs-hysa-demo.md).
 
 Before sharing a hosted deployment, add authentication and rate limits. The current API is unauthenticated and messages consume the account's credits. CORS restrictions do not authenticate users or stop direct API callers. Add persistent session mapping if conversations must survive server restarts. A database is useful at that point, rather than a prerequisite for the demo.
 
@@ -77,4 +77,4 @@ On November 12, 2026: `npm ci`, `npm run typecheck`, and `npm run build` passed.
 
 ## Team feature validation
 
-The Stocks vs. HYSA extension passes twelve automated tests, both workspace typechecks, and the production build. A live Claude call rendered the comparison. Browser checks verified six- and twelve-month results and zero-contribution/zero-APY behavior. See [the reproducible demo](docs/stocks-vs-hysa-demo.md).
+The Stocks vs. HYSA extension passes eighteen automated tests, both workspace typechecks, and the production build. A live Claude call rendered the comparison. Browser checks verified six- and twelve-month results and zero-contribution/zero-APY behavior. See [the reproducible demo](docs/stocks-vs-hysa-demo.md).

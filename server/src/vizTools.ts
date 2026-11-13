@@ -7,6 +7,7 @@
  * turn keeps flowing. The rendering IS the result, so the handlers ignore
  * their input and just confirm.
  */
+import { savingsGoal } from '../../shared/savingsGoal.ts';
 import { projectBalance } from '../../shared/savingsProjection.ts';
 import type { BackendCustomTool } from '@ag-ui/claude-managed-agents';
 
@@ -14,6 +15,26 @@ const rendered = (name: string) => () =>
   `Rendered "${name}" to the user as an interactive visual.`;
 
 export const vizTools: BackendCustomTool[] = [
+  {
+    name: 'show_savings_goal',
+    description: 'Show a savings-goal planner: target, current savings, monthly contribution and months to reach the target. Use for emergency funds or saving toward a specific amount. Assumes NO interest, fees or withdrawals; use the HYSA tool instead if the user wants interest included. Ask for missing amounts. Call directly, not inside repl.',
+    parameters: {
+      type: 'object',
+      properties: {
+        targetAmount: { type: 'number', minimum: 0.01, maximum: 10000000 },
+        currentSavings: { type: 'number', minimum: 0, maximum: 10000000 },
+        monthlyContribution: { type: 'number', minimum: 0, maximum: 10000000 },
+      },
+      required: ['targetAmount', 'currentSavings', 'monthlyContribution'],
+    },
+    handler: (input) => {
+      const args = input as Record<string, number>;
+      try {
+        const result = savingsGoal(args?.targetAmount!, args?.currentSavings!, args?.monthlyContribution!);
+        return JSON.stringify({ ...result, assumptions: 'No interest, fees or withdrawals. Months 0 means reached; null means unreachable without contributions. Explain these exact results.' });
+      } catch { return 'Invalid savings goal: provide positive target and nonnegative finite savings/contribution up to $10 million.'; }
+    },
+  },
   {
     name: 'show_savings_vs_investing',
     description: 'Render 6/12-month savings/investing projections. Set displayMode="hysa" for "remove stocks" or "HYSA only"; "stocks" for "remove HYSA" or "stocks only"; "both" for "show both". Keep the most recent explicit preference on follow-up questions in this same conversation until the user changes it. Use this tool for all three modes, even stock-only follow-ups. Each call creates a NEW chart; never claim to modify old charts. Retain prior amounts and rate assumptions unless changed; hidden rates are still inputs for later comparison. Rates are effective ANNUAL percentages, not horizon returns. Ask for missing starting amount/contribution. If rates are unspecified, label 4% HYSA APY, -20% stock downside and 10% upside as illustrative assumptions, not current rates or forecasts. Do not recommend stocks or imply guarantees/probabilities. Call directly, not inside repl.',
