@@ -84,3 +84,7 @@ The empty chat also offers four clickable starter questions, configured in `web/
 ## EC2 demo
 
 See [the EC2 deployment walkthrough](docs/ec2-demo.md) for the private presentation-laptop deployment, secure key setup, direct IPv4 HTTPS, network changes, and shutdown instructions.
+
+## Interactive demo guide
+
+Open [docs/demo-guide.html](docs/demo-guide.html) in a browser for a self-contained walkthrough: clickable architecture, three request traces, an offline chart-versus-agent-state simulator, all six tools and their source files, and a seven-step presentation script. It does not call Claude or spend API credits.
