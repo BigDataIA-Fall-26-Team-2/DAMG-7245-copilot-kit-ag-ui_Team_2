@@ -28,7 +28,7 @@ Close with: “We are demonstrating tested interactive agent integration, not a 
 
 - Rehearse the sequence yourself and record the demo.
 - Add the recording link and any required submission artifacts.
-- Finish documented live regression checks for the original debt-payoff, budget, and generic comparison tools.
+- Finish documented live regression checks for the original budget and generic comparison tools. Debt payoff was exercised through its starter question.
 - If cost/latency evidence is required, measure it; do not present estimates as recorded usage.
 - A forced network-failure UI test remains outstanding.
 - Review and merge the feature branch if main is the submission branch. Do not assume pushing a feature branch merges it.
@@ -130,3 +130,11 @@ Files: `web/src/viz/ExplainCurrentScenario.tsx` (message submission), `web/src/v
 Automated coverage adds goal rounding, reached/zero-contribution cases, cent precision, invalid values, backend results, and serialization of current rather than initial inputs.
 
 Live extension checks: the savings goal changed from 10 to 5 months when its contribution changed from $250 to $500; Explain sent and explained the updated five-month result without resetting the card. Growth Explain sent $750/month and $390,694.99 after the slider change. HYSA Explain sent only the visible HYSA result with $500/month and $8,123.68.
+
+## Suggested questions before the first message
+
+`web/src/StarterQuestions.tsx` registers four static CopilotKit suggestions, scoped to `financial-assistant` and available only `before-first-message`. `App.tsx` mounts this component inside the provider. The buttons are Compare stocks and savings, Plan a savings goal, Explore debt payoff, and Project investment growth. Clicking one sends the full example question through the normal chat flow; buttons disappear once the conversation starts. These are predefined prompts, so generating them does not consume model calls. Sending one still starts a normal paid agent turn.
+
+For the demo, click Compare stocks and savings instead of pasting the first prompt. Start a fresh chat to show the other starter buttons.
+
+Verified all four buttons in fresh browser chats: debt payoff rendered a 20-month plan; the savings goal rendered 10 months; investment growth rendered $260,463; Stocks vs. HYSA rendered all four six-month scenarios. Each click sent its configured message and hid the starter buttons. Typechecking and production build passed.

@@ -78,3 +78,5 @@ On November 12, 2026: `npm ci`, `npm run typecheck`, and `npm run build` passed.
 ## Team feature validation
 
 The Stocks vs. HYSA extension passes eighteen automated tests, both workspace typechecks, and the production build. A live Claude call rendered the comparison. Browser checks verified six- and twelve-month results and zero-contribution/zero-APY behavior. See [the reproducible demo](docs/stocks-vs-hysa-demo.md).
+
+The empty chat also offers four clickable starter questions, configured in `web/src/StarterQuestions.tsx`. They disappear after the first message.
